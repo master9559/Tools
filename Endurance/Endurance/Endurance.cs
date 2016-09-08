@@ -86,10 +86,19 @@ namespace Endurance
             enduranceIcon.Icon = Properties.Resources.endurance;
             enduranceIcon.Visible = true;
             enduranceIcon.Text = "Endurance";
+            enduranceIcon.BalloonTipTitle = "Endurance";
+            enduranceIcon.DoubleClick += openBtn_Click;
+            //enduranceIcon.Click += EnduranceIcon_Click;
         }
 
-        static void newForm() {
-            enduranceForm = new EnduranceForm();
+        private static void EnduranceIcon_Click(object sender, EventArgs e)
+        {
+            enduranceIcon.ShowBalloonTip(3000);
+        }
+
+        static void newForm()
+        {
+            enduranceForm = new EnduranceForm(timer.Enabled);
             enduranceForm.Show();
         }
 
@@ -100,6 +109,10 @@ namespace Endurance
 
         static void openBtn_Click(object sender, EventArgs e)
         {
+            if (enduranceForm.IsDisposed)
+            {
+                newForm();
+            }
             if (enduranceForm.WindowState == FormWindowState.Minimized)
             {
                 enduranceForm.WindowState = FormWindowState.Normal;
@@ -129,7 +142,7 @@ namespace Endurance
                 if (DateTime.Now < tickTime)
                 {
                     TimeSpan left = tickTime - DateTime.Now;
-                    enduranceForm.TimeLeftTxt = printTime(left);
+                    printTime(left);
                 }
                 else
                 {
@@ -139,7 +152,7 @@ namespace Endurance
             else
             {
                 TimeSpan elapsed = DateTime.Now - tickTime;
-                enduranceForm.TimeLeftTxt = printTime(elapsed);
+                printTime(elapsed);
             }
 
             SetThreadExecutionState(1);
@@ -160,32 +173,33 @@ namespace Endurance
             }
         }
 
-        static string printTime(TimeSpan time)
+        static void printTime(TimeSpan time)
         {
-            string rtnString = "";
+            string timeString = "";
             int hours = (int)time.TotalHours;
             if (hours > 0)
             {
-                rtnString += hours + " H ";
+                timeString += hours + " H ";
                 time -= TimeSpan.FromHours(hours);
             }
 
-            if (!String.IsNullOrEmpty(rtnString) || time.Minutes > 1)
+            if (!String.IsNullOrEmpty(timeString) || time.Minutes > 1)
             {
-                rtnString += time.Minutes + " M ";
+                timeString += time.Minutes + " M ";
                 time -= TimeSpan.FromMinutes(time.Minutes);
             }
 
             int seconds = (int)time.TotalSeconds;
-            if (String.IsNullOrEmpty(rtnString))
+            if (String.IsNullOrEmpty(timeString))
             {
-                rtnString += seconds + "." + time.Milliseconds / 100 + " S";
+                timeString += seconds + "." + time.Milliseconds / 100 + " S";
             }
             else
             {
-                rtnString += seconds + " S";
+                timeString += seconds + " S";
             }
-            return rtnString;
+            enduranceForm.TimeLeftTxt = timeString;
+            enduranceIcon.BalloonTipText = timeString;
         }
         #endregion
         #endregion

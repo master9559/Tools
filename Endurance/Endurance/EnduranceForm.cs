@@ -26,11 +26,19 @@ namespace Endurance
         }
 
         #region Methods
-        public EnduranceForm()
+        public EnduranceForm(bool running)
         {
             InitializeComponent();
 
-            Reset();
+            if (running)
+            {
+                Start();
+            }
+            else
+            {
+                Reset();
+            }
+
 
             delayTimePicker.Value = DateTime.Today + Endurance.TimeToRun;
         }
