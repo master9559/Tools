@@ -25,6 +25,9 @@ namespace Endurance
         static MenuItem startStopItm;
         static MenuItem openItm;
         static MenuItem exitItm;
+
+        const int longInterval = 60000;
+        const int shortInterval = 1000;
         #endregion
 
         #region Methods
@@ -53,6 +56,7 @@ namespace Endurance
             setTickTime();
             startStopItm.Text = stopText;
             enduranceForm.Start();
+            timer.Interval = shortInterval;
             timer.Start();
         }
 
@@ -88,18 +92,63 @@ namespace Endurance
             enduranceIcon.Text = "Endurance";
             enduranceIcon.BalloonTipTitle = "Endurance";
             enduranceIcon.DoubleClick += openBtn_Click;
-            //enduranceIcon.Click += EnduranceIcon_Click;
+            enduranceIcon.MouseClick += EnduranceIcon_Click;
         }
 
-        private static void EnduranceIcon_Click(object sender, EventArgs e)
+        #region private
+        static void setInterval(TimeSpan time)
         {
-            enduranceIcon.ShowBalloonTip(3000);
+            if (time.TotalMinutes > 2)
+            {
+                timer.Interval = longInterval;
+            }
+            else
+            {
+                timer.Interval = shortInterval;
+            }
         }
-
         static void newForm()
         {
             enduranceForm = new EnduranceForm(timer.Enabled);
             enduranceForm.Show();
+        }
+        static void setTickTime()
+        {
+            if (TimedRun)
+            {
+                tickTime = DateTime.Now + TimeToRun;
+            }
+            else
+            {
+                tickTime = DateTime.Now;
+            }
+        }
+
+        static void printTime(TimeSpan time)
+        {
+            string timeString = "";
+
+            int days = (int)time.TotalDays;
+            if (days > 0)
+            {
+                timeString += days + " Day" + (days > 1 ? "s " : " ");
+                time -= TimeSpan.FromDays(days);
+            }
+
+            if (time.Hours > 0)
+            {
+                timeString += time.ToString(@"hh\:mm");
+            }
+            else if (time.Minutes > 0)
+            {
+                timeString += time.Minutes + " Minute" + (time.Minutes > 1 ? "s" : "");
+            }
+            else
+            {
+                timeString += time.Seconds + " Second" + (time.Seconds > 1 ? "s" : "");
+            }
+            enduranceForm.TimeLeftTxt = timeString;
+            enduranceIcon.BalloonTipText = timeString;
         }
 
         static void exitBtn_Click(object sender, EventArgs e)
@@ -119,6 +168,14 @@ namespace Endurance
             }
             enduranceForm.Activate();
         }
+        private static void EnduranceIcon_Click(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left
+                && !String.IsNullOrEmpty(enduranceIcon.BalloonTipText))
+            {
+                enduranceIcon.ShowBalloonTip(3000);
+            }
+        }
 
         static void startStopBtn_Click(object sender, EventArgs e)
         {
@@ -134,7 +191,6 @@ namespace Endurance
             }
         }
 
-        #region private
         static void timer_Tick(object sender, EventArgs e)
         {
             if (TimedRun)
@@ -143,9 +199,11 @@ namespace Endurance
                 {
                     TimeSpan left = tickTime - DateTime.Now;
                     printTime(left);
+                    setInterval(left);
                 }
                 else
                 {
+                    enduranceIcon.ShowBalloonTip(3000, "Endurance", "Endurance has stopped", enduranceIcon.BalloonTipIcon);
                     Reset();
                 }
             }
@@ -153,54 +211,14 @@ namespace Endurance
             {
                 TimeSpan elapsed = DateTime.Now - tickTime;
                 printTime(elapsed);
+                setInterval(elapsed);
             }
 
-            SetThreadExecutionState(1);
+            SetThreadExecutionState(3);
         }
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         static extern uint SetThreadExecutionState(int esFlags);
-
-        static void setTickTime()
-        {
-            if (TimedRun)
-            {
-                tickTime = DateTime.Now + TimeToRun;
-            }
-            else
-            {
-                tickTime = DateTime.Now;
-            }
-        }
-
-        static void printTime(TimeSpan time)
-        {
-            string timeString = "";
-            int hours = (int)time.TotalHours;
-            if (hours > 0)
-            {
-                timeString += hours + " H ";
-                time -= TimeSpan.FromHours(hours);
-            }
-
-            if (!String.IsNullOrEmpty(timeString) || time.Minutes > 1)
-            {
-                timeString += time.Minutes + " M ";
-                time -= TimeSpan.FromMinutes(time.Minutes);
-            }
-
-            int seconds = (int)time.TotalSeconds;
-            if (String.IsNullOrEmpty(timeString))
-            {
-                timeString += seconds + "." + time.Milliseconds / 100 + " S";
-            }
-            else
-            {
-                timeString += seconds + " S";
-            }
-            enduranceForm.TimeLeftTxt = timeString;
-            enduranceIcon.BalloonTipText = timeString;
-        }
         #endregion
         #endregion
     }

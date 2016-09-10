@@ -39,8 +39,8 @@ namespace Endurance
                 Reset();
             }
 
-
             delayTimePicker.Value = DateTime.Today + Endurance.TimeToRun;
+            startStopBtn.Focus();
         }
 
         public void Reset()
