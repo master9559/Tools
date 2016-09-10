@@ -18,6 +18,7 @@ namespace Endurance
 
         static Timer timer = new Timer();
         static DateTime tickTime;
+        static bool click = false;
 
         static EnduranceForm enduranceForm;
         static NotifyIcon enduranceIcon;
@@ -64,6 +65,7 @@ namespace Endurance
         {
             enduranceForm.Reset();
             startStopItm.Text = startText;
+            enduranceIcon.BalloonTipText = "";
             timer.Stop();
         }
 
@@ -153,11 +155,16 @@ namespace Endurance
 
         static void exitBtn_Click(object sender, EventArgs e)
         {
+            enduranceForm.Close();
+            enduranceIcon.Visible = false;
+            enduranceForm.Dispose();
+            enduranceIcon.Dispose();
             Application.Exit();
         }
 
         static void openBtn_Click(object sender, EventArgs e)
         {
+            click = false;
             if (enduranceForm.IsDisposed)
             {
                 newForm();
@@ -167,10 +174,13 @@ namespace Endurance
                 enduranceForm.WindowState = FormWindowState.Normal;
             }
             enduranceForm.Activate();
+            timer_Tick(null, null);
         }
         private static void EnduranceIcon_Click(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left
+            click = true;
+            System.Threading.Thread.Sleep(200);
+            if (e.Button == MouseButtons.Left && click
                 && !String.IsNullOrEmpty(enduranceIcon.BalloonTipText))
             {
                 enduranceIcon.ShowBalloonTip(3000);
