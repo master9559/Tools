@@ -130,6 +130,8 @@ namespace PowerScheduler
                 {
                     timeLeftLbl.Text += seconds + " S";
                 }
+
+                SetThreadExecutionState(3);
             }
         }
 
@@ -186,6 +188,9 @@ namespace PowerScheduler
                     break;
             }
         }
+
+        [DllImport("Kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        static extern uint SetThreadExecutionState(int esFlags);
         #endregion
         #endregion
     }
