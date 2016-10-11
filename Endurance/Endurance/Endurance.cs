@@ -174,7 +174,10 @@ namespace Endurance
                 enduranceForm.WindowState = FormWindowState.Normal;
             }
             enduranceForm.Activate();
-            timer_Tick(null, null);
+            if (timer.Enabled)
+            {
+                timer_Tick(null, null);
+            }
         }
         private static void EnduranceIcon_Click(object sender, MouseEventArgs e)
         {
