@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -53,7 +54,9 @@
       <DependentUpon>EnduranceForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Endurance.cs" />
+    <Compile Include="Progam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SingleInstanceController.cs" />
     <EmbeddedResource Include="EnduranceForm.resx">
       <DependentUpon>EnduranceForm.cs</DependentUpon>
     </EmbeddedResource>

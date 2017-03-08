@@ -29,18 +29,23 @@ namespace Endurance
 
         const int longInterval = 60000;
         const int shortInterval = 1000;
+
+        internal static bool Loaded
+        {
+            get
+            {
+                return loaded;
+            }
+        }
+        static bool loaded = false;
         #endregion
 
         #region Methods
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [STAThread]
-        static void Main()
+        static Endurance()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
             timer.Interval = 1000;
             timer.Tick += timer_Tick;
             TimeToRun = TimeSpan.FromMinutes(30);
@@ -49,6 +54,7 @@ namespace Endurance
             enduranceIcon = new NotifyIcon();
             setupTrayIcon();
 
+            loaded = true;
             Application.Run();
         }
 
@@ -67,6 +73,23 @@ namespace Endurance
             startStopItm.Text = startText;
             enduranceIcon.BalloonTipText = "";
             timer.Stop();
+        }
+
+        public static void OpenForm()
+        {
+            if (enduranceForm.IsDisposed)
+            {
+                newForm();
+            }
+            if (enduranceForm.WindowState == FormWindowState.Minimized)
+            {
+                enduranceForm.WindowState = FormWindowState.Normal;
+            }
+            enduranceForm.Activate();
+            if (timer.Enabled)
+            {
+                timer_Tick(null, null);
+            }
         }
 
         private static void setupTrayIcon()
@@ -109,11 +132,13 @@ namespace Endurance
                 timer.Interval = shortInterval;
             }
         }
+
         static void newForm()
         {
             enduranceForm = new EnduranceForm(timer.Enabled);
             enduranceForm.Show();
         }
+
         static void setTickTime()
         {
             if (TimedRun)
@@ -165,20 +190,9 @@ namespace Endurance
         static void openBtn_Click(object sender, EventArgs e)
         {
             click = false;
-            if (enduranceForm.IsDisposed)
-            {
-                newForm();
-            }
-            if (enduranceForm.WindowState == FormWindowState.Minimized)
-            {
-                enduranceForm.WindowState = FormWindowState.Normal;
-            }
-            enduranceForm.Activate();
-            if (timer.Enabled)
-            {
-                timer_Tick(null, null);
-            }
+            OpenForm();
         }
+
         private static void EnduranceIcon_Click(object sender, MouseEventArgs e)
         {
             click = true;
